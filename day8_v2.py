@@ -22,10 +22,13 @@ def checkVis(subs,val):
 def getScore(subs,val):
     scores = [0 for x in range(0,4)]
     
+    for i in range(0,len(subs)):
+        if subs[i].shape[0] > 1:
+            subs[i] = subs[i].transpose()
+    
     # Left Subscore
-    for i in range(0,subs[0].shape[])
-    for i in range(0,len(subs[0].values.toList())):
-        comp = subs[0].iloc[0,len(subs[0])-(i+1)]
+    for i in range(0,subs[0].shape[1]):
+        comp = subs[0][0][subs[0].shape[1]-(i+1)]
         if comp < val: 
             scores[0] += 1
         else:
@@ -33,8 +36,8 @@ def getScore(subs,val):
             break
         
     # right Subscore
-    for i in range(0,len(subs[1])):
-        comp = subs[1].iloc[0,i]
+    for i in range(0,subs[1].shape[1]):
+        comp = subs[1][0][i]
         if comp < val: 
             scores[1] += 1
         else:
@@ -42,28 +45,28 @@ def getScore(subs,val):
             break
         
     # Up Subscore
-    for i in range(0,len(subs[2])):
-        comp = subs[2].iloc[len(subs[2])-(i+1),0]
+    for i in range(0,subs[2].shape[1]):
+        comp = subs[2][0][subs[2].shape[1]-(i+1)]
         if comp < val: 
             scores[2] += 1
         else:
             scores[2] += 1
             break
         
-    # Up Subscore
-    for i in range(0,len(subs[3])):
-        comp = subs[3].iloc[i,0]
+    # Down Subscore
+    for i in range(0,subs[3].shape[1]):
+        comp = subs[3][0][i]
         if comp < val: 
             scores[3] += 1
         else:
             scores[3] += 1
             break
         
-    print (scores)
     return(scores[0]*scores[1]*scores[2]*scores[3])
 
-file = open("C:/Users/kyle.minor/PythonStuff/AOC2022/AOC2022/" \
-               "Day8_input.txt")
+
+file = open("C:/Users/hokie/Documents/Programming/AOC22/" \
+              "Day8_input.txt")
 lines = file.readlines()
 for i in range(0,len(lines)):
     lines[i] = list(lines[i].strip())
@@ -82,9 +85,11 @@ for i in range(0,tbl.shape[0]):      # By Rows
             subs = getSubs(tbl=tbl,cell=[i,j])
             if checkVis(subs=subs,val=tbl[i,j]):
                 visCt += 1
+            print("Cell: ", i,j)
             tScore = getScore(subs=subs,val=tbl[i,j])
-            print (tScore)
+            print ("tScore: ", tScore)
             if tScore > score:
                 score = tScore
 
 print("Part 1: ", visCt)
+print("Part 2: ", score)
