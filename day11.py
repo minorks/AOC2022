@@ -5,9 +5,9 @@ Created on Sun Dec 11 09:13:56 2022
 @author: hokie
 """
 
+import time
+
 class Monkey():
-    
-    reliefDiv = 3
     
     def __init__(self,xid,items,op,testDiv,testRes):
         self.id = xid
@@ -20,7 +20,7 @@ class Monkey():
     def catch(self,item):
         self.items.append(item)
         
-    def inspect(self,item):
+    def inspect(self,item,reliefDiv):
         old = self.items[0]
         
         # Counter for item inspection
@@ -32,13 +32,10 @@ class Monkey():
         # Action to change item upon inspection
         toAdd = old if self.op[2] == "old" else int(self.op[2])
         new = (old + toAdd) if self.op[1] == "+" else (old * toAdd)
-        # if self.op[1] == "+":
-        #     new = old + self.op[2]
-        # else:
-        #     new = old * self.op[2]
             
         # Relief factor application
-        new = int(new / 3)
+        if reliefDiv > 1:
+            new = int(new / reliefDiv)
         
         # Return monkey to throw to AND new item factor
         self.items.remove(item)
@@ -85,7 +82,7 @@ class Parser():
         return int(line[1].split(":")[0])
 
     def __newItems(self,line):
-        aLine = line[2:4]
+        aLine = line[2:]
         toRet = list()
         for i in range(0,len(aLine)):
             toRet.append(int(aLine[i].split(",")[0]))
@@ -99,38 +96,56 @@ class Parser():
     
     def __newRes(self,line):
         return [True if line[1].find("true") >= 0 else False,int(line[5])]
+
+def mim(file,rounds=20,relief=3,part=1):  
+    
+    file = open(file)
+    monkeys = Parser(file).monkeys   
+    
+    for ct in range(0,rounds):
+        aTm = time.time()
+        for mk in monkeys.keys():
+            myMk = monkeys[mk]
+            for i in range(0,len(myMk.items)):
+                item = myMk.items[0]
+                toMky = myMk.inspect(item=item,reliefDiv=relief)
+                monkeys[toMky[0]].catch(toMky[1])  
+        print("Round: ", ct,"; Time: ", time.time()-aTm)
         
-file = open("C:\\Users\hokie\\Documents\\Programming\\" \
-            "AOC22\\day11_testInput.txt",'r')
-monkeys = Parser(file).monkeys
-
-for ct in range(0,20):
-    for mk in monkeys.keys():
-        myMk = monkeys[mk]
-        for i in range(0,len(myMk.items)):
-            item = myMk.items[0]
-            toMky = myMk.inspect(item)
-            monkeys[toMky[0]].catch(toMky[1])  
-    
-top = None
-bot = None
-for i in monkeys.keys():
-    if top == None: 
-        top = monkeys[i]
-    elif bot == None:
-        bot = monkeys[i]
-    else:
-        topCt = top.getCount()
-        botCt = bot.getCount()
-        if monkeys[i].getCount() > topCt:
-            bot = top
+    top = None
+    bot = None
+    for i in monkeys.keys():
+        if top == None: 
             top = monkeys[i]
-        elif monkeys[i].getCount() > botCt:
+        elif bot == None:
             bot = monkeys[i]
+        else:
+            topCt = top.getCount()
+            botCt = bot.getCount()
+            if monkeys[i].getCount() > topCt:
+                bot = top
+                top = monkeys[i]
+            elif monkeys[i].getCount() > botCt:
+                bot = monkeys[i]
     
-mb = top.getCount() * bot.getCount()
+    mb = top.getCount() * bot.getCount()
 
-print("Part 1: ", mb)
+    print("Part ", part,": ", mb)
+    
+#file = open("C:\\Users\hokie\\Documents\\Programming\\" \
+#            "AOC22\\day11_testInput.txt",'r')
+file = open("C:\\Users\\kyle.minor\\PythonStuff\\AOC2022\\AOC2022\\" \
+            "day11_testInput.txt",'r')
+
+mim(file= "C:\\Users\\kyle.minor\\PythonStuff\\AOC2022\\AOC2022\\" \
+            "day11_testInput.txt")
+
+
+mim(file ="C:\\Users\\kyle.minor\\PythonStuff\\AOC2022\\AOC2022\\" \
+            "day11_testInput.txt", rounds=1000,relief=1,part=2)
+    
+    
+
         
     
         
