@@ -20,7 +20,7 @@ class Monkey():
     def catch(self,item):
         self.items.append(item)
         
-    def inspect(self,item,reliefDiv):
+    def inspect(self,item,reliefDiv,maxMod):
         old = self.items[0]
         
         # Counter for item inspection
@@ -36,6 +36,8 @@ class Monkey():
         # Relief factor application
         if reliefDiv > 1:
             new = int(new / reliefDiv)
+            
+        new = new % maxMod
         
         # Return monkey to throw to AND new item factor
         self.items.remove(item)
@@ -100,25 +102,31 @@ class Parser():
 def mim(file,rounds=20,relief=3,part=1):  
     
     file = open(file)
-    monkeys = Parser(file).monkeys   
+    monkeys = Parser(file).monkeys
+    
+    mod = 1
+    for x in monkeys.keys():
+        mod *= monkeys[x].testDiv
     
     for ct in range(0,rounds):
-        aTm = time.time()
         for mk in monkeys.keys():
             myMk = monkeys[mk]
             for i in range(0,len(myMk.items)):
                 item = myMk.items[0]
-                toMky = myMk.inspect(item=item,reliefDiv=relief)
-                monkeys[toMky[0]].catch(toMky[1])  
-        print("Round: ", ct,"; Time: ", time.time()-aTm)
-        
+                toMky = myMk.inspect(item=item,reliefDiv=relief,maxMod=mod)
+                monkeys[toMky[0]].catch(toMky[1])
+                
     top = None
     bot = None
     for i in monkeys.keys():
         if top == None: 
             top = monkeys[i]
         elif bot == None:
-            bot = monkeys[i]
+            if top.getCount() >= monkeys[i].getCount():
+                bot = monkeys[i]
+            else:
+                bot = top
+                top = monkeys[i]
         else:
             topCt = top.getCount()
             botCt = bot.getCount()
@@ -127,24 +135,28 @@ def mim(file,rounds=20,relief=3,part=1):
                 top = monkeys[i]
             elif monkeys[i].getCount() > botCt:
                 bot = monkeys[i]
+        if top != None and bot != None:
+            print("Top :", top.id, top.getCount(), \
+                  " Bottom: ", bot.id, bot.getCount())
     
     mb = top.getCount() * bot.getCount()
 
     print("Part ", part,": ", mb)
     
-#file = open("C:\\Users\hokie\\Documents\\Programming\\" \
-#            "AOC22\\day11_testInput.txt",'r')
-file = open("C:\\Users\\kyle.minor\\PythonStuff\\AOC2022\\AOC2022\\" \
-            "day11_testInput.txt",'r')
+# file = open("C:\\Users\hokie\\Documents\\Programming\\" \
+#             "AOC22\\day11_input.txt",'r')
+# file = open("C:\\Users\\kyle.minor\\PythonStuff\\AOC2022\\AOC2022\\" \
+#             "day11_testInput.txt",'r')
 
-mim(file= "C:\\Users\\kyle.minor\\PythonStuff\\AOC2022\\AOC2022\\" \
-            "day11_testInput.txt")
+mim(file= "C:\\Users\hokie\\Documents\\Programming\\" \
+            "AOC22\\day11_input.txt")
 
 
-mim(file ="C:\\Users\\kyle.minor\\PythonStuff\\AOC2022\\AOC2022\\" \
-            "day11_testInput.txt", rounds=1000,relief=1,part=2)
+mim(file ="C:\\Users\hokie\\Documents\\Programming\\" \
+            "AOC22\\day11_input.txt", rounds=10000,relief=1,part=2)
     
     
+# 12727678864 too low for part 2
 
         
     
